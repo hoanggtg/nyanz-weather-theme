@@ -65,6 +65,43 @@
   .clock { font-size:34px; font-weight:300; line-height:1; font-variant-numeric:tabular-nums; }
   .dateline { font-size:13px; opacity:.75; margin-top:5px; }
 
+  /* Location switcher */
+  .loc-btn { background:none; border:none; color:#fff; font-family:inherit; text-align:left;
+             cursor:pointer; padding:4px 12px 4px 6px; border-radius:14px; transition:background .2s; }
+  .loc-btn:hover { background:rgba(255,255,255,.1); }
+  .loc-btn h1 { display:flex; align-items:center; gap:7px; }
+  .loc-btn .chev { width:19px; height:19px; flex:0 0 auto; opacity:.7; transition:transform .25s; }
+  .loc-btn.open .chev { transform:rotate(180deg); }
+
+  .search-panel { position:fixed; top:92px; left:50%; transform:translateX(-50%); z-index:60;
+                  width:min(92vw, 520px); padding:14px; border-radius:22px;
+                  background:rgba(18,28,48,.82); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+                  border:1px solid rgba(255,255,255,.2); box-shadow:0 18px 50px rgba(0,0,0,.35);
+                  animation:fadeUp .22s ease both; }
+  .sp-row { display:flex; gap:8px; }
+  .sp-input { flex:1; min-width:0; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+              color:#fff; border-radius:14px; padding:11px 14px; font-family:inherit; font-size:15px; outline:none; }
+  .sp-input:focus { background:rgba(255,255,255,.18); }
+  .sp-input::placeholder { color:rgba(255,255,255,.55); }
+  .sp-btn { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff;
+            border-radius:14px; padding:0 13px; cursor:pointer; font-size:16px; transition:background .2s; }
+  .sp-btn:hover { background:rgba(255,255,255,.22); }
+  .sp-results { margin-top:10px; max-height:302px; overflow-y:auto; }
+  .sp-quick-label { font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:1px;
+                    opacity:.6; margin:2px 2px 8px; }
+  .sp-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .sp-chip { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); color:#fff;
+             border-radius:99px; padding:7px 14px; font-family:inherit; font-size:13px; cursor:pointer;
+             transition:background .2s; }
+  .sp-chip:hover { background:rgba(255,255,255,.2); }
+  .sp-item { display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:none;
+             border:none; color:#fff; font-family:inherit; padding:10px 12px; border-radius:12px; cursor:pointer; }
+  .sp-item:hover { background:rgba(255,255,255,.13); }
+  .sp-flag { font-size:21px; flex:0 0 auto; }
+  .sp-name { font-weight:600; font-size:14.5px; }
+  .sp-sub { font-size:12.5px; opacity:.7; margin-top:1px; }
+  .sp-status { padding:10px 4px 2px; font-size:13.5px; opacity:.85; }
+
   /* Hero */
   .hero { text-align:center; padding:26px 0 10px; }
   .hero-icon { width:158px; height:158px; margin:0 auto; animation:fadeUp .8s .08s ease both; }
@@ -90,17 +127,11 @@
   .card h2 svg { width:15px; height:15px; }
 
   /* Hourly */
-  .hourly { display:flex; gap:4px; overflow-x:auto; padding-bottom:6px; margin:0 -6px; padding-inline:6px;
+  .hourly { overflow-x: auto; padding-bottom: 6px; margin: 0 -6px; padding-inline: 6px;
             scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.25) transparent; }
   .hourly::-webkit-scrollbar { height:6px; }
   .hourly::-webkit-scrollbar-thumb { background:rgba(255,255,255,.22); border-radius:3px; }
-  .hour { flex:0 0 62px; text-align:center; padding:10px 4px 12px; border-radius:16px; transition:background .2s; }
-  .hour:hover { background:rgba(255,255,255,.1); }
-  .hour.now { background:rgba(255,255,255,.14); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22); }
-  .h-label { font-size:12px; opacity:.75; height:16px; }
-  .h-icon { width:34px; height:34px; margin:7px auto 5px; }
-  .h-temp { font-size:16.5px; font-weight:600; }
-  .h-pop { font-size:11px; opacity:.8; color:#BFE3FF; height:14px; margin-top:3px; }
+  .hourly svg text { font-family:inherit; }
 
   /* Details grid */
   .details { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; }
@@ -224,15 +255,24 @@
 <!-- Content -->
 <div class="wrap hidden" id="content">
   <header class="topbar">
-    <div>
-      <h1>Hà Nội</h1>
-      <div class="sub">Việt Nam</div>
-    </div>
+    <button class="loc-btn" id="locBtn" title="Đổi địa điểm">
+      <h1><span id="placeName">Hà Nội</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></h1>
+      <div class="sub" id="placeSub">Việt Nam</div>
+    </button>
     <div class="clockbox">
       <div class="clock" id="clock">--:--</div>
       <div class="dateline" id="dateline">—</div>
     </div>
   </header>
+
+  <div class="search-panel hidden" id="searchPanel">
+    <div class="sp-row">
+      <input class="sp-input" id="searchInput" placeholder="Tìm thành phố… (Đà Nẵng, Tokyo, Paris…)" autocomplete="off" spellcheck="false">
+      <button class="sp-btn" id="geoBtn" title="Dùng vị trí hiện tại của bạn">📍</button>
+      <button class="sp-btn" id="closeSearch" title="Đóng">✕</button>
+    </div>
+    <div class="sp-results" id="spResults"></div>
+  </div>
 
   <section class="hero">
     <div class="hero-icon" id="heroIcon"></div>
@@ -278,13 +318,21 @@
 
 <script>
 /* ================= Config ================= */
-const LAT = 21.0278, LON = 105.8342;
-const FORECAST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
+let place = { name: 'Hà Nội', sub: 'Việt Nam', lat: 21.0278, lon: 105.8342 };
+try {
+  const saved = JSON.parse(localStorage.getItem('wx-place'));
+  if (saved && isFinite(saved.lat) && isFinite(saved.lon) && saved.name) place = saved;
+} catch (e) {}
+const savePlace = () => { try { localStorage.setItem('wx-place', JSON.stringify(place)); } catch (e) {} };
+
+const forecastUrl = () => `https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +
   `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m` +
   `&hourly=temperature_2m,weather_code,precipitation_probability,is_day` +
   `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max` +
   `&timezone=auto&forecast_days=7`;
-const AIR_URL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&current=european_aqi,pm2_5&timezone=auto`;
+const airUrl = () => `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${place.lat}&longitude=${place.lon}&current=european_aqi,pm2_5&timezone=auto`;
+const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search?count=6&language=vi&format=json&name=';
+let locOffsetSec = 7 * 3600; // múi giờ của địa điểm đang xem (sau load đầu sẽ cập nhật)
 
 /* ================= WMO weather codes ================= */
 const WMO = {
@@ -317,41 +365,36 @@ const cloudG = (x, y, s, fill, cls = 'cloud-main', op = 1) =>
      <rect x="-19" y="2" width="38" height="11" rx="5.5"/>
    </g>`;
 
-function iconSvg(type) {
+function iconInner(type) {
   const id = 'mm' + (_uid++);
   switch (type) {
     case 'sun':
-      return `<svg class="wi" viewBox="0 0 64 64"><g class="rays">${rays(32,32,14.5,20)}</g><circle class="sun-core" cx="32" cy="32" r="11.5"/></svg>`;
+      return `<g class="rays">${rays(32,32,14.5,20)}</g><circle class="sun-core" cx="32" cy="32" r="11.5"/>`;
     case 'moon':
-      return `<svg class="wi" viewBox="0 0 64 64">
-        <defs><mask id="${id}"><rect width="64" height="64" fill="#fff"/><circle cx="42" cy="21" r="15.5" fill="#000"/></mask></defs>
+      return `<defs><mask id="${id}"><rect width="64" height="64" fill="#fff"/><circle cx="42" cy="21" r="15.5" fill="#000"/></mask></defs>
         <circle class="moon-body" cx="33" cy="33" r="17.5" mask="url(#${id})"/>
         <circle class="tw" cx="50" cy="47" r="2.4" fill="#F6E7AE"/>
         <circle class="tw" cx="15" cy="14" r="1.8" fill="#F6E7AE" style="animation-delay:1.2s"/>
-        <circle class="tw" cx="53" cy="12" r="1.6" fill="#F6E7AE" style="animation-delay:2s"/></svg>`;
+        <circle class="tw" cx="53" cy="12" r="1.6" fill="#F6E7AE" style="animation-delay:2s"/>`;
     case 'part-day':
-      return `<svg class="wi" viewBox="0 0 64 64">
-        <g class="rays" style="transform-box:view-box">${rays(24,24,11,15.5)}</g>
+      return `<g class="rays" style="transform-box:view-box">${rays(24,24,11,15.5)}</g>
         <circle class="sun-core" cx="24" cy="24" r="9"/>
-        ${cloudG(35, 40, 1.02, '#F4F8FF')}</svg>`;
+        ${cloudG(35, 40, 1.02, '#F4F8FF')}`;
     case 'part-night':
-      return `<svg class="wi" viewBox="0 0 64 64">
-        <defs><mask id="${id}"><rect width="64" height="64" fill="#fff"/><circle cx="28" cy="17" r="9.5" fill="#000"/></mask></defs>
+      return `<defs><mask id="${id}"><rect width="64" height="64" fill="#fff"/><circle cx="28" cy="17" r="9.5" fill="#000"/></mask></defs>
         <circle class="moon-body" cx="24" cy="23" r="11" mask="url(#${id})"/>
         <circle class="tw" cx="16" cy="12" r="1.6" fill="#F6E7AE"/>
-        ${cloudG(35, 40, 1.02, '#F4F8FF')}</svg>`;
+        ${cloudG(35, 40, 1.02, '#F4F8FF')}`;
     case 'cloudy':
-      return `<svg class="wi" viewBox="0 0 64 64">
-        ${cloudG(20, 26, .82, '#C7D6EC', 'cloud-back', .75)}
-        ${cloudG(31, 36, 1.08, '#F4F8FF')}</svg>`;
+      return `${cloudG(20, 26, .82, '#C7D6EC', 'cloud-back', .75)}
+        ${cloudG(31, 36, 1.08, '#F4F8FF')}`;
     case 'fog':
-      return `<svg class="wi" viewBox="0 0 64 64">
-        ${cloudG(32, 26, 1, '#E2E9F4')}
+      return `${cloudG(32, 26, 1, '#E2E9F4')}
         <g stroke="#E7EDF6" stroke-width="4" stroke-linecap="round" opacity=".9">
           <line class="fogline" x1="17" y1="45" x2="45" y2="45"/>
           <line class="fogline l2" x1="21" y1="52" x2="49" y2="52"/>
           <line class="fogline l3" x1="16" y1="59" x2="42" y2="59"/>
-        </g></svg>`;
+        </g>`;
     case 'drizzle':
     case 'rain':
     case 'storm': {
@@ -366,17 +409,20 @@ function iconSvg(type) {
           <line class="drop d1" x1="24" y1="45" x2="24" y2="${45+dropLen}"/>
           <line class="drop d2" x1="33" y1="45" x2="33" y2="${45+dropLen}"/>
           <line class="drop d3" x1="42" y1="45" x2="42" y2="${45+dropLen}"/></g>`;
-      return `<svg class="wi" viewBox="0 0 64 64">${cloudG(32, 33, 1.08, cloudFill)}${extra}</svg>`;
+      return `${cloudG(32, 33, 1.08, cloudFill)}${extra}`;
     }
     case 'snow':
-      return `<svg class="wi" viewBox="0 0 64 64">${cloudG(32, 33, 1.08, '#EDF3FC')}
+      return `${cloudG(32, 33, 1.08, '#EDF3FC')}
         <g fill="#EAF4FF">
           <circle class="flake f1" cx="24" cy="46" r="2.6"/>
           <circle class="flake f2" cx="33" cy="46" r="2.2"/>
-          <circle class="flake f3" cx="42" cy="46" r="2.6"/></g></svg>`;
+          <circle class="flake f3" cx="42" cy="46" r="2.6"/></g>`;
   }
-  return iconSvg('cloudy');
+  return iconInner('cloudy');
 }
+const iconSvg = type => `<svg class="wi" viewBox="0 0 64 64">${iconInner(type)}</svg>`;
+const iconAt = (type, x, y, size) =>
+  `<svg class="wi" style="width:${size}px;height:${size}px" x="${x}" y="${y}" viewBox="0 0 64 64">${iconInner(type)}</svg>`;
 
 const kindIcon = (kind, isDay) => {
   switch (kind) {
@@ -434,12 +480,12 @@ const arrowSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" st
   box.innerHTML = html;
 })();
 
-/* ================= Clock ================= */
+/* ================= Clock (giờ địa phương của địa điểm đang xem) ================= */
+const VN_DAYS = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
 function tickClock() {
-  const n = new Date();
-  $('clock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
-  $('dateline').textContent = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' }).format(n)
-    .replace(/^\w/, c => c.toUpperCase());
+  const d = new Date(Date.now() + locOffsetSec * 1000); // giờ UTC + lệch múi giờ của địa điểm
+  $('clock').textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  $('dateline').textContent = `${VN_DAYS[d.getUTCDay()]}, ${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
 }
 setInterval(tickClock, 1000);
 
@@ -451,6 +497,52 @@ function detailCard(iconPath, title, valHtml, extraHtml = '', delay = 0) {
     <div class="d-extra">${extraHtml}</div></div>`;
 }
 
+/* ================= Hourly temperature chart ================= */
+function smoothPath(pts) {
+  if (pts.length < 3) return 'M' + pts.map(p => `${p[0]},${p[1]}`).join(' L');
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+    d += ` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)}`
+       + ` ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0]},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+function hourlyChart(rows) {
+  const colW = 66, padX = 16, top = 78, bot = 128, H = 154;
+  const W = padX * 2 + rows.length * colW;
+  const temps = rows.map(r => r.t), mn = Math.min(...temps), mx = Math.max(...temps);
+  const span = Math.max(mx - mn, 1.5);
+  const px = i => padX + i * colW + colW / 2;
+  const py = t => top + (1 - (t - mn) / span) * (bot - top);
+  const pts = rows.map((r, i) => [px(i), py(r.t)]);
+  const line = smoothPath(pts);
+  const area = `${line} L${pts[pts.length - 1][0]},${bot + 6} L${pts[0][0]},${bot + 6} Z`;
+
+  let el = '';
+  rows.forEach((r, i) => {
+    const cx = px(i), cy = py(r.t);
+    el += `<text x="${cx}" y="17" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.78)"${i === 0 ? ' font-weight="600"' : ''}>${i === 0 ? 'Bây giờ' : r.label}</text>`;
+    el += iconAt(r.icon, cx - 17, 26, 34);
+    if (r.pop >= 15)
+      el += `<text x="${cx}" y="148" font-size="10.5" text-anchor="middle" fill="#BFE3FF">💧${r.pop}%</text>`;
+    el += `<text x="${cx}" y="${(cy - 12).toFixed(1)}" font-size="12.5" font-weight="700" text-anchor="middle" fill="#fff">${Math.round(r.t)}°</text>`;
+    el += `<circle cx="${cx}" cy="${cy.toFixed(1)}" r="${i === 0 ? 4.4 : 3.1}" fill="#fff" stroke="#FFC94D" stroke-width="${i === 0 ? 2.2 : 1.6}"/>`;
+  });
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <defs><linearGradient id="gTempFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC94D" stop-opacity=".26"/>
+      <stop offset="1" stop-color="#FFC94D" stop-opacity="0"/>
+    </linearGradient></defs>
+    <rect x="${padX}" y="3" width="${colW}" height="${H - 8}" rx="14" fill="rgba(255,255,255,.09)"/>
+    <path d="${area}" fill="url(#gTempFill)"/>
+    <path d="${line}" fill="none" stroke="#FFC94D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${el}
+  </svg>`;
+}
+
 /* ================= Render ================= */
 let lastData = null, lastAir = null;
 
@@ -460,7 +552,11 @@ function render(w, air) {
   const isDay = cur.is_day === 1;
 
   document.body.dataset.theme = themeFor(kind, isDay);
-  document.title = `Hà Nội ${Math.round(cur.temperature_2m)}° · ${label}`;
+  locOffsetSec = w.utc_offset_seconds ?? locOffsetSec;
+  tickClock();
+  $('placeName').textContent = place.name;
+  $('placeSub').textContent = place.sub || '—';
+  document.title = `${place.name} ${Math.round(cur.temperature_2m)}° · ${label}`;
 
   // Hero
   $('heroIcon').innerHTML = iconSvg(kindIcon(kind, isDay));
@@ -471,23 +567,21 @@ function render(w, air) {
     `<span class="down">↓</span> <b>${Math.round(w.daily.temperature_2m_min[0])}°</b>&nbsp;&nbsp;·&nbsp;&nbsp;` +
     `Cảm giác như <b>${Math.round(cur.apparent_temperature)}°</b>`;
 
-  // Hourly: start from current hour, 24 items
+  // Hourly: biểu đồ đường nhiệt độ 24 giờ, bắt đầu từ giờ hiện tại
   const hourKey = cur.time.slice(0, 13);
   let idx = w.hourly.time.findIndex(t => t.slice(0, 13) === hourKey);
   if (idx < 0) idx = 0;
-  let hHtml = '';
+  const rows = [];
   for (let i = idx; i < Math.min(idx + 24, w.hourly.time.length); i++) {
     const [, k] = wmo(w.hourly.weather_code[i]);
-    const ic = iconSvg(kindIcon(k, w.hourly.is_day[i] === 1));
-    const pop = w.hourly.precipitation_probability?.[i] ?? 0;
-    const lbl = i === idx ? 'Bây giờ' : `${w.hourly.time[i].slice(11, 13)}h`;
-    hHtml += `<div class="hour${i === idx ? ' now' : ''}">
-      <div class="h-label">${lbl}</div>
-      <div class="h-icon">${ic}</div>
-      <div class="h-temp">${Math.round(w.hourly.temperature_2m[i])}°</div>
-      <div class="h-pop">${pop >= 15 ? '💧' + pop + '%' : ''}</div></div>`;
+    rows.push({
+      t: w.hourly.temperature_2m[i],
+      icon: kindIcon(k, w.hourly.is_day[i] === 1),
+      pop: w.hourly.precipitation_probability?.[i] ?? 0,
+      label: `${w.hourly.time[i].slice(11, 13)}h`
+    });
   }
-  $('hourly').innerHTML = hHtml;
+  $('hourly').innerHTML = hourlyChart(rows);
 
   // Details
   const uv = w.daily.uv_index_max[0] ?? 0;
@@ -558,14 +652,110 @@ function render(w, air) {
   $('updated').textContent = `${hm(cur.time)} (giờ địa phương)`;
 }
 
+/* ================= Location search ================= */
+const flagOf = cc => cc ? cc.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0))) : '📍';
+const QUICK = [
+  { name: 'Hà Nội', sub: 'Việt Nam', lat: 21.0278, lon: 105.8342 },
+  { name: 'TP. Hồ Chí Minh', sub: 'Việt Nam', lat: 10.7761, lon: 106.7007 },
+  { name: 'Đà Nẵng', sub: 'Việt Nam', lat: 16.0544, lon: 108.2022 },
+  { name: 'Huế', sub: 'Việt Nam', lat: 16.4637, lon: 107.5909 }
+];
+let results = [], debTimer = null;
+
+const statusHtml = t => `<div class="sp-status">${t}</div>`;
+function openSearch() {
+  $('searchPanel').classList.remove('hidden');
+  $('locBtn').classList.add('open');
+  $('searchInput').focus();
+  if ($('searchInput').value.trim().length < 2) showQuick();
+}
+function closeSearch() {
+  $('searchPanel').classList.add('hidden');
+  $('locBtn').classList.remove('open');
+}
+function showQuick() {
+  results = [];
+  $('spResults').innerHTML = `<div class="sp-quick-label">Địa điểm nhanh</div><div class="sp-chips">${
+    QUICK.map((q, i) => `<button class="sp-chip" data-i="${i}">${q.name}</button>`).join('')}</div>`;
+  $('spResults').querySelectorAll('.sp-chip').forEach(b =>
+    b.addEventListener('click', () => pick(QUICK[+b.dataset.i])));
+}
+async function doSearch(q) {
+  $('spResults').innerHTML = statusHtml('Đang tìm…');
+  try {
+    const r = await fetch(GEO_URL + encodeURIComponent(q)).then(x => x.json());
+    results = r.results || [];
+    if (!results.length) {
+      $('spResults').innerHTML = statusHtml(`Không tìm thấy địa điểm nào khớp “${q}”.`);
+      return;
+    }
+    $('spResults').innerHTML = results.map((c, i) => `<button class="sp-item" data-i="${i}">
+      <span class="sp-flag">${flagOf(c.country_code)}</span>
+      <span><span class="sp-name">${c.name}</span><div class="sp-sub">${[c.admin1, c.country].filter(Boolean).join(', ')}</div></span>
+    </button>`).join('');
+    $('spResults').querySelectorAll('.sp-item').forEach(b =>
+      b.addEventListener('click', () => pick(results[+b.dataset.i])));
+  } catch (e) {
+    $('spResults').innerHTML = statusHtml('Lỗi tìm kiếm, kiểm tra mạng rồi thử lại.');
+  }
+}
+function pick(c) {
+  place = {
+    name: c.name || '—',
+    sub: c.sub || [c.admin1, c.country].filter(Boolean).join(', ') || '—',
+    lat: +(c.lat ?? c.latitude), lon: +(c.lon ?? c.longitude)
+  };
+  savePlace();
+  closeSearch();
+  $('searchInput').value = '';
+  load();
+}
+$('locBtn').addEventListener('click', () =>
+  $('searchPanel').classList.contains('hidden') ? openSearch() : closeSearch());
+$('closeSearch').addEventListener('click', closeSearch);
+$('searchInput').addEventListener('input', e => {
+  clearTimeout(debTimer);
+  const q = e.target.value.trim();
+  if (q.length < 2) { showQuick(); return; }
+  debTimer = setTimeout(() => doSearch(q), 320);
+});
+$('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && results.length) pick(results[0]);
+  if (e.key === 'Escape') closeSearch();
+});
+$('geoBtn').addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    $('spResults').innerHTML = statusHtml('Trình duyệt không hỗ trợ định vị.');
+    return;
+  }
+  $('spResults').innerHTML = statusHtml('Đang lấy vị trí của bạn…');
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    let name = 'Vị trí của tôi';
+    let sub = `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+    try {
+      const g = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=vi`).then(x => x.json());
+      name = g.city || g.locality || name;
+      sub = [g.principalSubdivision, g.countryName].filter(Boolean).join(', ') || sub;
+    } catch (e) {}
+    pick({ name, sub, lat, lon });
+  }, () => {
+    $('spResults').innerHTML = statusHtml('Không lấy được vị trí — hãy cấp quyền định vị cho trang rồi thử lại.');
+  }, { timeout: 10000 });
+});
+document.addEventListener('click', e => {
+  if ($('searchPanel').classList.contains('hidden')) return;
+  if (!$('searchPanel').contains(e.target) && !$('locBtn').contains(e.target)) closeSearch();
+});
+
 /* ================= Load ================= */
 async function load() {
   const btn = $('refreshBtn');
   btn && btn.classList.add('spin');
   try {
     const [wR, aR] = await Promise.allSettled([
-      fetch(FORECAST_URL).then(r => { if (!r.ok) throw 0; return r.json(); }),
-      fetch(AIR_URL).then(r => { if (!r.ok) throw 0; return r.json(); })
+      fetch(forecastUrl()).then(r => { if (!r.ok) throw 0; return r.json(); }),
+      fetch(airUrl()).then(r => { if (!r.ok) throw 0; return r.json(); })
     ]);
     if (wR.status !== 'fulfilled') throw new Error('forecast failed');
     lastData = wR.value; lastAir = aR.status === 'fulfilled' ? aR.value : null;

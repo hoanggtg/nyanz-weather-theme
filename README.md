@@ -20,11 +20,13 @@ Mở [http://localhost:8123](http://localhost:8123) trong trình duyệt.
 
 ## ✨ Tính năng
 
+- **Đổi địa điểm**: bấm tên thành phố để mở ô tìm kiếm (Geocoding API của Open-Meteo, hỗ trợ tiếng Việt, toàn cầu), nút 📍 lấy vị trí hiện tại của bạn, chips gợi ý nhanh; lựa chọn được lưu bằng localStorage
+- **Đồng hồ theo giờ địa phương** của địa điểm đang xem (xem Tokyo thì đồng hồ chạy giờ Tokyo)
 - **Dữ liệu thật, tự cập nhật** mỗi 10 phút (kèm nút "Làm mới" thủ công)
 - **Nền gradient động** đổi theo điều kiện thời tiết & ngày/đêm — 13 theme: nắng, ít mây, nhiều mây, mưa, mưa phùn, dông, tuyết, sương mù… (phiên bản ngày & đêm)
 - **Icon thời tiết hoạt hình vẽ bằng SVG** (không dùng ảnh): tia nắng quay, mây trôi, mưa rơi, chớp lóe, tuyết rơi, trăng lưỡi liềm + sao lấp lánh
 - **Hero**: nhiệt độ hiện tại, mô tả tiếng Việt, cao/thấp hôm nay, cảm giác như, đồng hồ realtime
-- **Dự báo 24 giờ**: dải cuộn ngang, icon theo giờ (phân biệt ngày/đêm), xác suất mưa
+- **Dự báo 24 giờ**: biểu đồ đường nhiệt độ mượt (Catmull-Rom, diện tích gradient, chấm + nhãn nhiệt từng giờ), cuộn ngang, icon theo giờ phân biệt ngày/đêm, xác suất mưa
 - **8 thẻ chi tiết**: chỉ số UV (kèm thanh màu), gió (mũi tên xoay theo hướng thật), độ ẩm, chất lượng không khí EAQI + PM2.5, áp suất, mây che phủ, cảm giác như, lượng mưa
 - **Cung mặt trời**: vị trí mặt trời theo giờ thực giữa bình minh và hoàng hôn, độ dài ban ngày
 - **Dự báo 7 ngày**: kèm thanh khoảng nhiệt min → max
@@ -45,11 +47,13 @@ Mở `index.html`, sửa ở đầu khối `<script>` cuối file:
 
 | Muốn đổi | Sửa gì | Vị trí |
 |---|---|---|
-| Vị trí | `LAT`, `LON` (và tên hiển thị trong HTML) | `const LAT = 21.0278, LON = 105.8342;` + `<h1>Hà Nội</h1>` |
+| Vị trí mặc định | object `place` (tên + tọa độ) và mảng `QUICK` (chips gợi ý nhanh) | đầu khối `<script>` cuối file |
 | Chu kỳ tự làm mới | `setInterval(load, 10 * 60 * 1000)` | cuối file (ms) |
-| Số ngày dự báo | `forecast_days=7` | trong `FORECAST_URL` |
+| Số ngày dự báo | `forecast_days=7` | trong `forecastUrl()` |
 | Số giờ dự báo | vòng lặp `idx + 24` | hàm `render()` |
 | Màu nền các theme | khối CSS `body[data-theme="..."]` | đầu `<style>` |
+
+> Mẹo: địa điểm người dùng chọn được lưu trong `localStorage` (khóa `wx-place`). Muốn reset về mặc định, mở DevTools → Console → gõ `localStorage.removeItem('wx-place')` rồi tải lại trang.
 
 Tọa độ lấy nhanh: mở [open-meteo.com](https://open-meteo.com/en/docs) hoặc Google Maps (chuột phải vào vị trí → copy kinh độ/vĩ độ).
 
