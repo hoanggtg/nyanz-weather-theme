@@ -62,3 +62,7 @@ Tọa độ lấy nhanh: mở [open-meteo.com](https://open-meteo.com/en/docs) h
 - **Thời tiết**: [Open-Meteo Forecast API](https://open-meteo.com/en/docs) — nhiệt độ, gió, ẩm, UV, mưa, mặt trời, dự báo giờ/ngày
 - **Không khí**: [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) — EAQI (thang châu Âu) và PM2.5; nếu API này lỗi, thẻ không khí sẽ hiện "Không có dữ liệu" mà không ảnh hưởng phần còn lại
 - Mô tả thời tiết dịch tiếng Việt theo mã WMO (`weather_code`)
+
+## 📄 Giấy phép
+
+MIT — dùng, sửa, chia sẻ thoải mái.
